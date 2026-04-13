@@ -405,6 +405,32 @@ describe('RedashClient', () => {
           query: 'SELECT COUNT(*) as count FROM users',
           data_source_id: 1,
           max_age: 0,
+          apply_auto_limit: true,
+        })
+      );
+      expect(result).toEqual(mockResult);
+    });
+
+    it('should execute an adhoc query with apply_auto_limit set to false', async () => {
+      const mockResult = {
+        id: 1,
+        data: {
+          columns: [{ name: 'count', type: 'integer' }],
+          rows: [{ count: 5 }],
+        },
+      };
+
+      mockAxiosInstance.post.mockResolvedValue({ data: mockResult });
+
+      const result = await client.executeAdhocQuery('SELECT COUNT(*) as count FROM users', 1, false);
+
+      expect(mockAxiosInstance.post).toHaveBeenCalledWith(
+        '/api/query_results',
+        expect.objectContaining({
+          query: 'SELECT COUNT(*) as count FROM users',
+          data_source_id: 1,
+          max_age: 0,
+          apply_auto_limit: false,
         })
       );
       expect(result).toEqual(mockResult);
